@@ -6,27 +6,19 @@ What is the largest prime factor of the number 600851475143 ?
 
 config const N = 13195;
 
-var prime_numbers: domain(int);
-prime_numbers.add(2);
-prime_numbers.add(3);
-
 proc isPrime(n: int) {
-  if (n <= 1 || n % 2 == 0 || n % 3 == 0) {
+  if (n <= 3) {
+    return n > 1;
+  } else if (n % 2 == 0 || n % 3 == 0) {
     return false;
   }
 
-  if (prime_numbers.member(n)) {
-    return true;
-  }
-
-  var high = sqrt(n): int;
-  for i in 5..high by 6 {
+  var sqrtN = floor(sqrt(n)): int;
+  for i in 5..sqrtN by 6 {
     if (n % i == 0 || n % (i + 2) == 0) {
       return false;
     }
   }
-
-  prime_numbers.add(n);
 
   return true;
 }
