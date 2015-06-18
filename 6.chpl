@@ -1,4 +1,4 @@
-
+// https://projecteuler.net/problem=6
 
 iter squareOfRange(d) {
   for i in d {
