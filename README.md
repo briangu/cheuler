@@ -1,10 +1,6 @@
 # cheuler
 
-Solutions to Project Euler problems in Chapel.
-
-https://projecteuler.net
-
-http://chapel.cray.com
+Solutions to Project Euler (https://projecteuler.net) problems in Chapel.
 
 SETUP
 =====
