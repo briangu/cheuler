@@ -13,4 +13,4 @@ while (primeIdx < 10001) {
   i += 1;
 }
 
-writeln(lastPrime)
+writeln(lastPrime);
