@@ -1,20 +1,9 @@
-// https://projecteuler.net/problem=6
+var ones: [1..100] int = 1;
+var r = + scan ones;
+var squares = r * r;
 
-iter squareOfRange(d) {
-  for i in d {
-    yield i * i;
-  }
-}
-
-var sumOfSquareOfRange = 0;
-for i in squareOfRange({1..100}) {
-  sumOfSquareOfRange += i;
-}
-
-var sumOfRange = 0;
-for i in {1..100} {
-  sumOfRange += i;
-}
+var sumOfSquareOfRange = + reduce squares;
+var sumOfRange = + reduce r;
 var squareOfSumOfRange = sumOfRange ** 2;
 
 writeln(squareOfSumOfRange, " ", sumOfSquareOfRange, " ", squareOfSumOfRange - sumOfSquareOfRange);
