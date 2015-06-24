@@ -13,10 +13,10 @@ class Node {
 var root: Node;
 var lastRowHead: Node;
 var lastRowPointer: Node;
-var siblingHead: Node;
-var siblingPointer: Node;
+var newRowHead: Node;
+var newRowPointer: Node;
 
-proc loadData() {
+proc loadData(ref maxSum: int) {
   var f = open(Filename, iomode.r);
   var r = f.reader();
 
@@ -29,46 +29,47 @@ proc loadData() {
   r.read(v);
   root = new Node(v);
   lastRowHead = root;
-  lastRowPointer = lastRowHead;
 
   var n: Node;
 
   for j in 2..M {
-    r.read(v);
+    lastRowPointer = lastRowHead;
 
+    r.read(v);
     n = new Node(v, nil, lastRowPointer);
     lastRowPointer.leftChild = n;
-    siblingHead = n;
-    siblingPointer = siblingHead;
+    newRowHead = n;
+    newRowPointer = newRowHead;
 
     for i in 2..j {
       r.read(v);
       n = new Node(v, lastRowPointer, lastRowPointer.sibling);
+
       lastRowPointer.rightChild = n;
       if (lastRowPointer.sibling != nil) {
         lastRowPointer.sibling.leftChild = n;
       }
-      siblingPointer.sibling = n;
 
-      siblingPointer = siblingPointer.sibling;
+      newRowPointer.sibling = n;
+      newRowPointer = newRowPointer.sibling;
+
       lastRowPointer = lastRowPointer.sibling;
     }
 
-    lastRowHead = siblingHead;
-    lastRowPointer = lastRowHead;
+    lastRowHead = newRowHead;
 
-    computeRowCounts(lastRowHead);
+    computeRowCounts(lastRowHead, maxSum);
   }
 
   f.close();
 }
 
-proc reverseBruteForceMaxTreePath(n: Node, ref maxSum: int, sum: int = 0): int {
+proc reverseBruteForceMaxTreePath(n: Node, ref maxSum: int, sum: int = 0) {
   if (n == nil) {
     if (sum > maxSum) {
       maxSum = sum;
     }
-    return maxSum;
+    return;
   }
 
   if (n.count != -1) {
@@ -77,35 +78,21 @@ proc reverseBruteForceMaxTreePath(n: Node, ref maxSum: int, sum: int = 0): int {
     reverseBruteForceMaxTreePath(n.leftParent, maxSum, sum + n.value);
     reverseBruteForceMaxTreePath(n.rightParent, maxSum, sum + n.value);
   }
-
-  return maxSum;
 }
 
-proc greedyRowScan(head: Node, ref maxSum: int) {
+proc computeRowCounts(head: Node, ref maxSum: int) {
   var n = head;
   while (n != nil) {
     var altMaxSum = 0;
-    var sum = reverseBruteForceMaxTreePath(n, altMaxSum);
-    if (sum > maxSum) {
-      maxSum = sum;
+    reverseBruteForceMaxTreePath(n, altMaxSum);
+    n.count = altMaxSum;
+    if (altMaxSum > maxSum) {
+      maxSum = altMaxSum;
     }
     n = n.sibling;
   }
 }
-
-proc computeRowCounts(head: Node) {
-  var n = head;
-  while (n != nil) {
-    if (n.count == -1) {
-      var altMaxSum = 0;
-      n.count = reverseBruteForceMaxTreePath(n, altMaxSum);
-    }
-    n = n.sibling;
-  }
-}
-
-loadData();
 
 var maxSum: int = 0;
-greedyRowScan(lastRowHead, maxSum);
+loadData(maxSum);
 writeln(maxSum);
