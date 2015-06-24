@@ -7,7 +7,7 @@ SETUP
 
 Chapel (http://chapel.cray.com/download.html)
 
-	brea install chapel
+	brew install chapel
 
 COMPILING SINGLE
  
