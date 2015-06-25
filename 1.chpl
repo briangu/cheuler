@@ -3,7 +3,7 @@ If we list all the natural numbers below 10 that are multiples of 3 or 5, we get
 Find the sum of all the multiples of 3 or 5 below 1000.
 */
 
-config const n = 10;
+config const N = 10;
 
 iter multiples(limit: int) {
   for i in 3..limit {
@@ -13,9 +13,5 @@ iter multiples(limit: int) {
   }  
 }
 
-var sum = 0;
-for x in multiples(n-1) {
-  sum += x;
-}
-writeln(sum);
+writeln(+ reduce [i in multiples(N-1)]);
 
