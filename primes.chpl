@@ -17,13 +17,43 @@ module Primes {
     return true;
   }
 
-  iter primes(max: int) {
-    var i = 1;
-    while (i <= max) {
+  iter primes(max: int, param tag: iterKind) where tag == iterKind.standalone {
+    forall i in 1..max {
       if (isPrime(i)) {
         yield i;
       }
+    }
+  }
+
+  iter primes(max: int) {
+    for i in 1..max {
+      if (isPrime(i)) {
+        yield i;
+      }
+    }
+  }
+
+  proc nextPrime(start: int, end: int, ref p: int): bool {
+    var i = start + 1;
+    while (i <= end) {
+      if (isPrime(i)) {
+        p = i;
+        return true;
+      }
       i += 1;
     }
+    return false;
+  }
+
+  proc prevPrime(start: int, ref p: int): bool {
+    var i = start - 1;
+    while (i > 1) {
+      if (isPrime(i)) {
+        p = i;
+        return true;
+      }
+      i -= 1;
+    }
+    return false;
   }
 }
