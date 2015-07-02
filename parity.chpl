@@ -11,6 +11,23 @@ type byte = uint(8);
 var seed = 17;
 var rand = new RandomStream(seed);
 
+var referenceParity: [0..1][0..127] byte;
+
+proc computeReferenceParity(referenceParity) {
+  var odd = 0;
+  var even = 0;
+  for i in 0..255 {
+    var b = i: byte;
+    if (parityForByte(b)) {
+      referenceParity[1][odd] = b;
+      odd += 1;
+    } else {
+      referenceParity[1][even] = b;
+      even += 1;
+    }
+  }
+}
+
 // temporarily use the slow method until a table is built
 proc popcount(b: byte): byte {
   var n = b;
@@ -43,8 +60,68 @@ proc computeParityForCube(cube, parity) {
   }
 }
 
-proc recoverParityCubeUsingParity(parity, cube) {
+inline proc parityBitForByte(b: byte, pos: int) {
+  return (b >> pos) & 0x1;
+}
 
+proc recoverCubeUsingParity(parity, cube) {
+  var h = 0;
+  var count: atomic int;
+
+  forall a in referenceParity[parityBitForByte(parity[PARITY_X][h], 0)] {
+    var cpA = a;
+    forall b in referenceParity[parityBitForByte(parity[PARITY_X][h], 1)] {
+      var cpB = cpA ^ b;
+      forall c in referenceParity[parityBitForByte(parity[PARITY_X][h], 2)] {
+        var cpC = cpB ^ c;
+        forall d in referenceParity[parityBitForByte(parity[PARITY_X][h], 3)] {
+          var cpD = cpC ^ d;
+          forall e in referenceParity[parityBitForByte(parity[PARITY_X][h], 4)] {
+            var cpE = cpD ^ e;
+            forall f in referenceParity[parityBitForByte(parity[PARITY_X][h], 5)] {
+              var cpF = cpE ^ f;
+              forall g in referenceParity[parityBitForByte(parity[PARITY_X][h], 6)] {
+                var cpG = cpF ^ g;
+                forall h in referenceParity[parityBitForByte(parity[PARITY_X][h], 7)] {
+                  var cpH = cpG ^ h;
+                  if (cpH == parity[PARITY_X][h]) {
+                    count.add(1);
+                    if (count.read() % 100000 == 0) {
+                      write("+");
+                      if (count.read() % 1000000 == 0) {
+                        writeln();
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  writeln("matching cube count: ", count.read());
+}
+
+proc isValidParityConfiguration(parity, cube): bool {
+  var computedParity: [0..2][0..7] byte;
+  computeParityForCube(cube, computedParity);
+  return isEqualParity(parity, computedParity);
+}
+
+proc isEqualParity(parityA, parityB): bool {
+  // TODO: vector compare?
+  for h in 0..2 {
+    for i in 0..7 {
+      if (parityA[h][i] != parityB[h][i]) {
+        return false;
+      }
+    }
+  }
+
+  return true;
 }
 
 proc isEqualCubes(cubeA, cubeB): bool {
@@ -89,7 +166,7 @@ proc prettyPrintCube(cube) {
 }
 
 proc prettyPrintParity(parity) {
-  for h in 0..H {
+  for h in 0..2 {
     writef("  ");
     prettyPrintByte(parity[PARITY_X][h]);
     writeln();
@@ -106,10 +183,15 @@ var cubeA: [0..H][0..7] byte;
 var cubeB: [0..H][0..7] byte;
 var parity: [0..2][0..7] byte;
 
+computeReferenceParity(referenceParity);
+
+writeln(isEqualCubes(cubeA, cubeB));
+writeln(isEqualParity(parity, parity));
+
 generateRandomCube(cubeA);
 prettyPrintCube(cubeA);
 computeParityForCube(cubeA, parity);
 prettyPrintParity(parity);
-recoverParityCubeUsingParity(parity, cubeB);
+recoverCubeUsingParity(parity, cubeB);
 writeln(isEqualCubes(cubeA, cubeB));
 
