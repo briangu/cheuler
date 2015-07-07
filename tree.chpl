@@ -32,7 +32,7 @@ module Tree {
   }
 
   proc insertNode(root: Node, node: Node) {
-    if (root == nil) {
+    if (root == nil || node == nil) {
       return;
     }
     if (node.value > root.value) {
@@ -104,26 +104,9 @@ module Tree {
     insertIntoBalancedTreeInternal(root, flatTree[midIdx+1..]);
   }
 
-  proc treeHeight(root): int {
-    var stack = new Stack(root.type);
-    var node = root;
-    var maxHeight = 0;
-
-    while (!stack.isEmpty || node != nil) {
-      while (node != nil) {
-        stack.push(node);
-        node = node.right;
-      }
-      if (stack.size > maxHeight) {
-        maxHeight = stack.size;
-      }
-      node = stack.pop();
-      node = node.left;
-    }
-
-    delete stack;
-
-    return maxHeight;
+  proc treeHeight(root, height: int = 0): int {
+    if (root == nil) then return height;
+    return max(treeHeight(root.left, height + 1), treeHeight(root.right, height + 1));
   }
 
   proc isBalancedTree(root): bool {
