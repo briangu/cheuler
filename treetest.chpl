@@ -1,6 +1,8 @@
 use Tree;
 
-var root = generateRandomTree(10);
+config const N = 10;
+
+var root = generateRandomTree(N);
 prettyPrint(root);
 writeln("---------------------------");
 
@@ -12,8 +14,15 @@ root = rotateLeft(root);
 prettyPrint(root);
 writeln("---------------------------");
 
-writeln([i in enumerateInDescendingOrder(root)] i);
+writeln([node in enumerateInDescendingOrder(root)] node.value);
 writeln("---------------------------");
 
-writeln([i in enumerateInAscendingOrder(root)] i);
+writeln([node in enumerateInAscendingOrder(root)] node.value);
+writeln("---------------------------");
+
+writeln("is balanced: ", isBalancedTree(root));
+writeln("---------------------------");
+
+balanceTree(root);
+prettyPrint(root);
 writeln("---------------------------");

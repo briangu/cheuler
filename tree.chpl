@@ -1,3 +1,4 @@
+// TODO: most of the code in this module leaks memory
 module Tree {
 
   use Random, Stack;
@@ -78,9 +79,59 @@ module Tree {
     return right;
   }
 
-  // TODO: rewrite to use minimal stacks
-  proc balanceTree(root) {
+  proc balanceTree(ref root) {
+    proc insertIntoBalancedTreeInternal(root, nodes) {
+      if (nodes.size == 0) then return;
 
+      var midIdx = floor(nodes.size / 2): int + nodes.domain.low;
+      var node = nodes[midIdx];
+      node.left = nil;
+      node.right = nil;
+      insertNode(root, node);
+
+      insertIntoBalancedTreeInternal(node, nodes[..midIdx-1]);
+      insertIntoBalancedTreeInternal(node, nodes[midIdx+1..]);
+    }
+
+    var flatTree = [node in enumerateInAscendingOrder(root)] node;
+
+    var midIdx = floor(flatTree.size / 2): int;
+    root = flatTree[midIdx];
+    root.left = nil;
+    root.right = nil;
+
+    insertIntoBalancedTreeInternal(root, flatTree[..midIdx-1]);
+    insertIntoBalancedTreeInternal(root, flatTree[midIdx+1..]);
+  }
+
+  proc treeHeight(root): int {
+    var stack = new Stack(root.type);
+    var node = root;
+    var maxHeight = 0;
+
+    while (!stack.isEmpty || node != nil) {
+      while (node != nil) {
+        stack.push(node);
+        node = node.right;
+      }
+      if (stack.size > maxHeight) {
+        maxHeight = stack.size;
+      }
+      node = stack.pop();
+      node = node.left;
+    }
+
+    delete stack;
+
+    return maxHeight;
+  }
+
+  proc isBalancedTree(root): bool {
+    return (root == nil) ||
+           (root.left == nil && root.right == nil) ||
+           (isBalancedTree(root.left) &&
+            isBalancedTree(root.right) &&
+            (abs(treeHeight(root.left) - treeHeight(root.right)) <= 1));
   }
 
   iter enumerateInDescendingOrder(root) {
@@ -93,9 +144,11 @@ module Tree {
         node = node.right;
       }
       node = stack.pop();
-      yield node.value;
+      yield node;
       node = node.left;
     }
+
+    delete stack;
   }
 
   iter enumerateInAscendingOrder(root) {
@@ -108,8 +161,10 @@ module Tree {
         node = node.left;
       }
       node = stack.pop();
-      yield node.value;
+      yield node;
       node = node.right;
     }
+
+    delete stack;
   }
 }
