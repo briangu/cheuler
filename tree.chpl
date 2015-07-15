@@ -31,29 +31,37 @@ module Tree {
     prettyPrint(node.right, depth + 1, node.value + " R ");
   }
 
-  proc insertNode(root: Node, node: Node) {
+  proc insertNode(root: Node, node: Node): bool {
     if (root == nil || node == nil) {
-      return;
+      return false;
     }
+    var added = false;
     if (node.value > root.value) {
       if (root.right) {
-        insertNode(root.right, node);
+        added = insertNode(root.right, node);
       } else {
         root.right = node;
+        added = true;
       }
     } else if (node.value < root.value) {
       if (root.left) {
-        insertNode(root.left, node);
+        added = insertNode(root.left, node);
       } else {
         root.left = node;
+        added = true;
       }
     }
+    return added;
   }
 
-  proc generateRandomTree(n: int): Node {
+  proc generateRandomTree(n: int, maxValue: int = n): Node {
     var root = new Node(nextRandomInt(n));
-    for i in 2..n {
-      insertNode(root, new Node(nextRandomInt(n)));
+    var count = 1;
+    while (count < n) {
+      var added = insertNode(root, new Node(nextRandomInt(maxValue)));
+      if (added) {
+        count += 1;
+      }
     }
     return root;
   }

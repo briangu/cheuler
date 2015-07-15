@@ -1,8 +1,9 @@
 use Tree;
 
 config const N = 10;
+config const M = N;
 
-var root = generateRandomTree(N);
+var root = generateRandomTree(N, M);
 prettyPrint(root);
 writeln("1 ---------------------------");
 
